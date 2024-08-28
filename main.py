@@ -2,7 +2,6 @@ import streamlit as st
 import time
 import urllib.request
 import json
-#from config import PROMOPTFLOW_CONFIG
 def req(question):
     data = {"chat_input" : question}
 
