@@ -4,7 +4,7 @@ import urllib.request
 import json
 
 
-def makeacll(q):
+def req(q):
     url = "https://desi-fkfec2dxbqh8ffdu.eastus-01.azurewebsites.net/ask"
     # Create the payload with the question
     payload = {
