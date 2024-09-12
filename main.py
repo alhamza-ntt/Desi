@@ -2,47 +2,26 @@ import streamlit as st
 import time
 import urllib.request
 import json
-def req(question):
-    data = {"chat_input" : question}
-
-    body = str.encode(json.dumps(data))
-    #PROMOPTFLOW_CONFIG["api_key"]
-
-
-
-    url = "https://desi-resturant.francecentral.inference.ml.azure.com/score"
-    api_key = "vayqqVeISQ0T2Kwm21btoTTUIL3gGakH"
-    if not api_key:
-        raise Exception("A key should be provided to invoke the endpoint")
-    headers = {'Content-Type':'application/json', 'Authorization':('Bearer '+ api_key)}
-
-
-
-    req = urllib.request.Request(url, body, headers)
-
-    try:
-        response = urllib.request.urlopen(req)
-
-        result = response.read()
-        return(json.loads(result)["chat_output"])
-    except urllib.error.HTTPError as error:
-        return("The request failed with status code: " + str(error.code))
-
-        # return the headers - they include the requert ID and the timestamp, which are useful for debugging the failure
-        return(error.info())
-        return(error.read().decode("utf8", 'ignore'))
+import requests
 
 
 
 
+def req(q):
+    url = "https://desi-fkfec2dxbqh8ffdu.eastus-01.azurewebsites.net/ask"
+    # Create the payload with the question
+    payload = {
+        "question": q
+    }
 
+    # Send the POST request with the JSON payload
+    response = requests.post(url, json=payload)
 
-
-
-
-
-
-
+    # Print the response from the server
+    if response.status_code == 200:
+        return ( response.json()["response"])
+    else:
+        return (f"Failed to send request. Status code: {response.status_code}")
 
 
 
@@ -56,6 +35,22 @@ def response_generator(question):
             yield word + " "  # Stream word by word
             time.sleep(0.05)
         yield "\n"  # Add a newline after each line
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
