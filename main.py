@@ -2,7 +2,9 @@ import streamlit as st
 import time
 import urllib.request
 import json
-def req(q):
+
+
+def makeacll(q):
     url = "https://desi-fkfec2dxbqh8ffdu.eastus-01.azurewebsites.net/ask"
     # Create the payload with the question
     payload = {
@@ -14,7 +16,7 @@ def req(q):
 
     # Print the response from the server
     if response.status_code == 200:
-        return (response.json()["response"])
+        return ("Response:", response.json())
     else:
         return (f"Failed to send request. Status code: {response.status_code}")
 
