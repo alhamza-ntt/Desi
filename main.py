@@ -5,58 +5,55 @@ import json
 import requests
 
 
+import streamlit as st
+
+import requests
+
+BASE_URL = "https://desi-fkfec2dxbqh8ffdu.eastus-01.azurewebsites.net"
 
 
-def req(q):
-    url = "https://desi-fkfec2dxbqh8ffdu.eastus-01.azurewebsites.net/ask"
-    # Create the payload with the question
-    payload = {
-        "question": q
-    }
+class BrowserSession:
+    def __init__(self):
+        self.session = requests.Session()
 
-    # Send the POST request with the JSON payload
-    response = requests.post(url, json=payload)
+    def send_message(self, message):
+        url = f"{BASE_URL}/send_message"
+        data = {"content": message}
+        response = self.session.post(url, json=data)
+        return response.json()
 
-    # Print the response from the server
-    if response.status_code == 200:
-        return ( response.json()["response"])
-    else:
-        return (f"Failed to send request. Status code: {response.status_code}")
+    def get_history(self):
+        url = f"{BASE_URL}/get_history"
+        response = self.session.get(url)
+        return response.json()
 
+def clear_all_sessions():
+    url = f"{BASE_URL}/clear_all_sessions"
+    response = requests.post(url)
+    return response.json()
 
+def list_users():
+    url = f"{BASE_URL}/list_users"
+    response = requests.get(url)
+    return response.json()
 
-# Streamed response emulator
-def response_generator(question):
-    response = req(question)
-    lines = response.splitlines()  # Split by lines to preserve formatting
-    for line in lines:
-        words = line.split()  # Split each line into words
-        for word in words:
-            yield word + " "  # Stream word by word
-            time.sleep(0.05)
-        yield "\n"  # Add a newline after each line
-
-
-
+def get_user_history(user_id):
+    url = f"{BASE_URL}/get_user_history/{user_id}"
+    response = requests.get(url)
+    return response.json()
 
 
+# Initialize the ChatbotClient for each user session
+if 'client' not in st.session_state:
+    st.session_state.client = BrowserSession()  # Create a new client for each user
 
-
-
-
-
-
-
-
-
-
-
-
-
+# Function to handle sending a message
+def handle_send_message(message):
+    if message:
+        response = st.session_state.client.send_message(message)["response"]
+        return response  # Return the response instead of writing it directly
 
 st.title("Simple chat UI For DeSi")
-
-
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -75,8 +72,8 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Display assistant response in chat message container
+    # Get and display assistant's response
     with st.chat_message("assistant"):
-        response = st.write_stream(response_generator(prompt))
-    # Add assistant response to chat history
+        response = handle_send_message(prompt)  # Get the response from the function
+        st.markdown(response)  # Display the response in the assistant's chat
     st.session_state.messages.append({"role": "assistant", "content": response})
